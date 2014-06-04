@@ -13,7 +13,7 @@ static uint8_t gen[D+1];
 static void rs_generate_field();
 static void rs_generate_generator_polynomial();
 static uint32_t rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1]);
-static uint32_t rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D]);
+static uint32_t rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D + 1]);
 static int32_t rs_calculate_error_values(uint32_t errdeg, const uint8_t errpoly[D + 1], uint8_t roots[D + 1], uint8_t locpoly[E]);
 static uint32_t rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D + 1], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D]);
 
@@ -269,7 +269,7 @@ rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1])
  * Returns the degree of the error polynomial (the number of errors in the message).
  */
 static uint32_t
-rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D])
+rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D + 1])
 {
     int32_t i, r, el, discr_r;
     uint32_t deg = 0;
