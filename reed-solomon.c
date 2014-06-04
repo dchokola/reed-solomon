@@ -182,7 +182,7 @@ rs_decode(uint8_t msg[N])
         return 0;
     }
     /* FIXME: Berlekamp-Massey algorithm implementation is BROKEN! */
-    return errdeg = rs_calculate_error_locator_polynomial(syndromes, errpoly);
+    errdeg = rs_calculate_error_locator_polynomial(syndromes, errpoly);
     /* FIXME: Chien search might be broken, too. */
     rootscnt = rs_calculate_error_values(errdeg, errpoly, roots, locpoly);
     if(rootscnt < 0)
