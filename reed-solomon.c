@@ -4,7 +4,6 @@
  */
 
 #include <stdint.h>
-#include <propeller.h>
 
 #include "reed-solomon.h"
 
