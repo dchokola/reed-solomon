@@ -18,15 +18,7 @@
 #define K (N - D)          /* length of message (K < N) */
 #define A0 N               /* field.log[A0] = 0 */
 
-typedef struct rs_field {
-    uint8_t exp[N+1];   /* alpha ^ n */
-    uint8_t log[N+1];   /* log(alpha ^ n) */
-} rs_field_t;
-
-/* Primitive polynomial for generating the finite field. */
-#define PRIMPOLY 0x171
-
-void rs_init(void);
+int32_t rs_init(void);
 int32_t rs_encode(const uint8_t msg[], uint32_t len, uint8_t parity[D]);
 int32_t rs_decode(uint8_t msg[N]);
 

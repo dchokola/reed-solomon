@@ -6,75 +6,31 @@
 #include <stdint.h>
 
 #include "reed-solomon.h"
+#include "galois.h"
+#include "utils.h"
 
-static rs_field_t field;
+static gf_t field;
 static uint8_t gen[D+1];
 
-static void rs_generate_field();
 static void rs_generate_generator_polynomial();
 static uint32_t rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1]);
 static uint32_t rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D + 1]);
 static int32_t rs_calculate_error_values(uint32_t errdeg, const uint8_t errpoly[D + 1], uint8_t roots[D + 1], uint8_t locpoly[E]);
 static uint32_t rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D + 1], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D]);
 
-#ifndef min
-#define min(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a < _b ? _a : _b; })
-
-#endif /* min */
-#ifndef max
-#define max(a,b) \
-    ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-       _a > _b ? _a : _b; })
-
-#endif /* max */
-
 /**
  * Main program function.
  */
-void
+int32_t
 rs_init(void)
 {
-    rs_generate_field();
+    if(!gf_generate_field(&field, M, GF_PRIMPOLY_2_8)) {
+		return -1;
+    }
+
     rs_generate_generator_polynomial();
-}
 
-/* Generate the finite field GF(Q^M) in a pair of lookup tables. */
-static void
-rs_generate_field()
-{
-    uint32_t i;
-    uint8_t mask = 1;
-
-    for(i = 0; i < M; i++)
-    {
-        field.exp[i] = mask;
-        field.log[mask] = i;
-        if(PRIMPOLY & (1 << i))
-        {
-            field.exp[M] ^= mask;
-        }
-        mask = mask << 1;
-    }
-
-    field.log[field.exp[M]] = M;
-    for(i = M + 1; i < N; i++)
-    {
-        if(field.exp[i - 1] >= (1 << (M-1)))
-        {
-            field.exp[i] = field.exp[M] ^ ((field.exp[i - 1] ^ (1 << (M-1))) << 1);
-        }
-        else
-        {
-            field.exp[i] = field.exp[i - 1] << 1;
-        }
-        field.log[field.exp[i]] = i;
-    }
-    field.exp[A0] = 0;
-    field.log[0] = A0;
+    return 0;
 }
 
 /* Find the generator polynomial for the BCH/RS code. */
@@ -204,7 +160,7 @@ rs_decode(uint8_t msg[N])
         }
         n2 = field.exp[(N - roots[j]) % N];
         tmp = 0;
-        for(i = min(errdeg, D - 1) & (-1 << 1); i >= 0; i -= 2)
+        for(i = MIN(errdeg, D - 1) & (-1 << 1); i >= 0; i -= 2)
         {
             if(errpoly[i + 1] != A0)
             {
