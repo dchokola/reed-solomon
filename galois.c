@@ -30,16 +30,16 @@ gf_generate_field(gf_t *gf, uint8_t r, uint32_t poly)
 
     /* The (r-1)th bit of poly should be set if it is the same order as the
      * field. If the rth bit or higher is set, the order is too high. */
-    if(!(poly >> (r - 1)) || poly >> 1) {
+    if(!(poly >> (r - 1)) || poly >> r) {
         return -1;
     }
 
     /* Assign an exponent to the zero element. Use an unused value. */
-    gf->exp[gf->len - 1] = 0; /* exp(gf->len - 1) = 0 */
-    gf->log[0] = gf->len - 1; /* log(0) = gf->len - 1 */
+    gf->exp[gf->len - 1] = 0; /* exp(2^r - 1) = 0 */
+    gf->log[0] = gf->len - 1; /* log(0) = 2^r - 1 */
     gf->exp[0] = 1;           /* exp(0) = 1 */
     gf->log[1] = 0;           /* log(1) = 0 */
-    for(i = 2; i < gf->len; i++)
+    for(i = 1; i < gf->len - 1; i++)
     {
         tmp = (uint32_t) gf->exp[i - 1] << 1;
         if(tmp & (1 << r))
