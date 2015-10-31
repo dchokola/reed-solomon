@@ -42,11 +42,16 @@ main(void)
         printf("\n");
         printf("Buffer had %d bytes with %d errors.\n", len, err);
 
-        if(!err) {
+        if(!err)
+        {
             printf("Buffer decoded successfully.\n");
-        } else if(err > 0) {
+        }
+        else if(err > 0)
+        {
             printf("Buffer corrected %d errors.\n", err);
-        } else {
+        }
+        else
+        {
             printf("Buffer was not decoded successfully.\n");
         }
     }
