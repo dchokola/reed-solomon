@@ -13,10 +13,10 @@ static gf_t field;
 static uint8_t gen[D+1];
 
 static void rs_generate_generator_polynomial();
-static uint32_t rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1]);
-static uint32_t rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D + 1]);
+static uint32_t rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D]);
+static uint32_t rs_calculate_error_locator_polynomial(const uint8_t syndromes[D], uint8_t errpoly[D + 1]);
 static int32_t rs_calculate_error_values(uint32_t errdeg, const uint8_t errpoly[D + 1], uint8_t roots[D + 1], uint8_t locpoly[E]);
-static uint32_t rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D + 1], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D]);
+static uint32_t rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D]);
 
 /**
  * Main program function.
@@ -225,7 +225,7 @@ rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D])
  * Returns the degree of the error polynomial (the number of errors in the message).
  */
 static uint32_t
-rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t errpoly[D + 1])
+rs_calculate_error_locator_polynomial(const uint8_t syndromes[D], uint8_t errpoly[D + 1])
 {
     int32_t i, r, el, discr_r;
     uint32_t deg = 0;
@@ -241,7 +241,7 @@ rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t er
     }
 
     el = 0;
-    for(r = 1; r <= D; r++)
+    for(r = 0; r < D; r++)
     {
         discr_r = 0;
 
@@ -273,7 +273,7 @@ rs_calculate_error_locator_polynomial(const uint8_t syndromes[D + 1], uint8_t er
                     t[i + 1] ^= field.exp[(discr_r + b[i]) % N];
                 }
             }
-            if(2 * el <= r - 1)
+            if(2 * el <= r)
             {
                 el = r - el;
                 for(i = 0; i <= D; i++)
@@ -374,7 +374,7 @@ rs_calculate_error_values(uint32_t errdeg, const uint8_t errpoly[D + 1], uint8_t
  * Returns the degree of the error evaluator polynomial.
  */
 static uint32_t
-rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D + 1], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D])
+rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D], uint32_t errdeg, const uint8_t *errpoly, uint8_t evalpoly[D])
 {
     int32_t i, j;
     uint32_t deg = 0;
@@ -385,9 +385,9 @@ rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D + 1], uint32_t 
         tmp = 0;
         for(j = (deg < i) ? deg : i; j >= 0; j--)
         {
-            if(syndromes[i-j+1] != A0 && errpoly[j] != A0)
+            if(syndromes[i-j] != A0 && errpoly[j] != A0)
             {
-                tmp ^= field.exp[(syndromes[i-j+1] + errpoly[j]) % N];
+                tmp ^= field.exp[(syndromes[i-j] + errpoly[j]) % N];
             }
         }
         if(tmp)
