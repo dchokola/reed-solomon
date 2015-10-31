@@ -24,7 +24,7 @@ static uint32_t rs_generate_error_evaluator_polynomial(const uint8_t syndromes[D
 int32_t
 rs_init(void)
 {
-    if(!gf_generate_field(&field, M, GF_PRIMPOLY_2_8)) {
+    if(gf_generate_field(&field, M, GF_PRIMPOLY_2_8)) {
 		return -1;
     }
 
@@ -87,6 +87,7 @@ rs_encode(const uint8_t msg[], uint32_t len, uint8_t parity[D])
         parity[i] = 0;
     }
 
+    /* Linear feedback shift register. */
     for(i = K - 1; i >= 0; i--)
     {
         fb = field.log[((i >= len) ? 0 : msg[i]) ^ parity[D-1]];
@@ -123,7 +124,7 @@ int32_t
 rs_decode(uint8_t msg[N])
 {
     int32_t i, j, cnt;
-    uint8_t syndromes[D + 1];
+    uint8_t syndromes[D];
     uint8_t errpoly[D + 1];
     uint8_t roots[D + 1];
     uint8_t locpoly[E];
@@ -186,13 +187,12 @@ rs_decode(uint8_t msg[N])
  * Returns zero if there are no errors in the message.
  */
 static uint32_t
-rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1])
+rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D])
 {
     int32_t i, j, err;
     uint8_t tmp;
 
-    syndromes[0] = 1;
-    for(i = 1; i <= D; i++)
+    for(i = 0; i < D; i++)
     {
         syndromes[i] = msg[0];
     }
@@ -204,14 +204,14 @@ rs_calculate_syndromes(const uint8_t msg[N], uint8_t syndromes[D + 1])
             continue;
         }
         tmp = field.log[msg[i]];
-        for(j = 1; j <= D; j++)
+        for(j = 0; j < D; j++)
         {
-            syndromes[j] ^= field.exp[(tmp + (j - 1) * i) % N];
+            syndromes[j] ^= field.exp[(tmp + j * i) % N];
         }
     }
 
     err = 0;
-    for(i = 1; i <= D; i++)
+    for(i = 0; i < D; i++)
     {
         err += !!syndromes[i];
         syndromes[i] = field.log[syndromes[i]];
