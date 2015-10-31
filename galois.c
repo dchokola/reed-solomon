@@ -30,7 +30,7 @@ gf_generate_field(gf_t *gf, uint8_t r, uint32_t poly)
 
     /* The (r-1)th bit of poly should be set if it is the same order as the
      * field. If the rth bit or higher is set, the order is too high. */
-    if(!(poly >> (r - 1)) || poly >> r) {
+    if(!(poly >> r) || poly >> (r + 1)) {
         return -1;
     }
 
