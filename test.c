@@ -17,7 +17,7 @@ int32_t
 main(void)
 {
     int32_t i, len, err;
-    uint8_t buf[N];
+    uint8_t buf[N] = {0};
 
     rs_init();
     srandom((uint32_t) time(NULL));
@@ -29,9 +29,9 @@ main(void)
         /* Introduce an error in a random location. */
         buf[random() % len] = 'x';
         err = rs_decode(buf);
-/*
+
         printf("Data:");
-        for(i = 0; i < len; i++)
+        for(i = 0; i < N; i++)
         {
             if(i % 16 == 0)
             {
@@ -41,7 +41,7 @@ main(void)
         }
         printf("\n");
         printf("Buffer had %d bytes with %d errors.\n", len, err);
-*/
+
         if(!err) {
             printf("Buffer decoded successfully.\n");
         } else if(err > 0) {
