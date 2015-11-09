@@ -17,14 +17,18 @@ int32_t
 main(void)
 {
     int32_t i, len, err;
-    uint8_t buf[N] = {0};
+    uint8_t buf[N];
 
     rs_init();
     srandom((uint32_t) time(NULL));
 
     while(!0)
     {
-        len = sprintf((char *) buf, "%u", (uint32_t) random());
+        for(i = 0; i < N; i++)
+        {
+            buf[i] = 0;
+        }
+        len = snprintf((char *) buf, N, "%u", (uint32_t) random());
         rs_encode(buf, len, &buf[K]);
         /* Introduce an error in a random location. */
         buf[random() % len] = 'x';
